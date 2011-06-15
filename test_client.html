@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+        <script>
+            $(function() {
+                longPoll();
+            });
+            
+            var randomId = new Date().getTime();
+
+
+            function sendMessage(message) {
+                postfinished = false;
+                $.ajax({
+                    type: "POST",
+                    url: "/",
+                    data: message,
+                    context: document.body,
+                    complete: function(){
+                        postfinished = true;
+                    }
+                });
+            }
+
+            function longPoll() {
+                $.ajax({  
+                    url: "/?id=" + randomId,
+                    context: document.body,
+                    success: function(data){
+                        eval(data);
+                        longPoll();
+                    }
+                });
+            }
+
+            setInterval(iteratecontrols, 100);
+            function iteratecontrols() {
+
+                if(postfinished) {
+                    if(keyupactive) {
+                        sendMessage({key: "up", id: randomId});
+                    }
+                    else if(keydownactive) {
+                        sendMessage({key: "down", id: randomId});
+                    }
+                    else if(keyrightactive) {
+                        sendMessage({key: "right", id: randomId});
+                    }
+                    else if(keyleftactive) {
+                        sendMessage({key: "left", id: randomId});
+                    }
+                }
+
+                keyupactive = keydownactive = keyrightactive = keyleftactive = false;
+            }
+
+            var keyupactive = false;
+            var keydownactive = false;
+            var keyrightactive = false;
+            var keyleftactive = false;
+            var postfinished = true;
+
+            $("html").keydown(function(event){
+                switch(event.keyCode) {
+                    case 37: 
+                        keyleftactive = true;
+                        break;
+                    case 38: 
+                        keyupactive = true;
+                        break;
+                    case 39: 
+                        keyrightactive = true;
+                        break;
+                    case 40:
+                        keydownactive = true;
+                        break;
+                }
+            });
+        
+        </script>
+    </head>
+    <body>
+        <div id="obj" style="position:absolute; display:block; width:50px; height:50px; background:red;"></div>
+    </body>
+</html>
